@@ -4,7 +4,7 @@ function mod()
 
   local packages = { };
 
-  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class',['crystal+'] = 'crystal+'}
+  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class',['crystal+'] = 'crystal+'} --valid packages
 
   import = function(...)
   
@@ -17,6 +17,7 @@ function mod()
       packages[pkgName] = pkgName;
       assert(pkgName~=nil and type(pkgName) == 'string' and accepted[pkgName] ~= nil, 'Package name '..pkgName..' invalid. ');
 
+      --all library data!
       if pkgName == 'math' then
 
         math = {
