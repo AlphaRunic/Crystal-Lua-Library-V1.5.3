@@ -3,13 +3,13 @@ crys_mt.__index = crys_mt
 
 local m,t,s,smt = math,table,string,setmetatable
 
-function module() --init
+function __init__() --initiate
 
   crystal = { packages = { } }; --crystal.packages
 
   crystal.version = 'Crystal v.1.6.2 Alpha'
 
-  local importerMem = require'Crystal/importer'(); --global import(...) function
+  local importerMem = require'Crystal.importer'(); --global import(...) function
 
   getseed = function() --used for math.randomseed() and Random.new()
     return math.random(99999999,os.time())
@@ -64,4 +64,4 @@ function module() --init
   return setmetatable(crystal,crys_mt)
 end
 
-return module
+return __init__

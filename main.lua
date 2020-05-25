@@ -1,4 +1,4 @@
-local crystal = require'Crystal/crystal'() --import library
+local crystal = require'Crystal.crystal'() --import library
 
 import("math","string","table","random","class","crystal+") -->> crystal.packages
 
