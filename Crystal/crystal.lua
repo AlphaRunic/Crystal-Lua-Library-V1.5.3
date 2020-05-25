@@ -7,9 +7,9 @@ function module() --init
 
   crystal = { packages = { } }; --crystal.packages
 
-  _CVERSION = 'Crystal v.1.5.3 Alpha'
+  crystal.version = 'Crystal v.1.6.2 Alpha'
 
-  require'Crystal/importer'(); --global import(...) function
+  local importerMem = require'Crystal/importer'(); --global import(...) function
 
   getseed = function() --used for math.randomseed() and Random.new()
     return math.random(99999999,os.time())
@@ -59,7 +59,7 @@ function module() --init
     end
   end
 
-  memory = math.floor (  collectgarbage('count')  ); --crystal memory
+  crystal.memory = math.floor (  collectgarbage('count') + importerMem  ); --crystal memory
 
   return setmetatable(crystal,crys_mt)
 end

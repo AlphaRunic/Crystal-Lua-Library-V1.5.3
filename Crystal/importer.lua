@@ -4,7 +4,7 @@ function mod()
 
   local packages = { };
 
-  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class',['crystal+'] = 'crystal+'} --valid packages
+  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class', ['crystal+'] = 'crystal+'} --valid packages
 
   import = function(...)
   
@@ -259,18 +259,33 @@ function mod()
 
       elseif pkgName == 'crystal+' then
 
-        _CAUTHOR = "Ruunic"
+        crystal.author = "Ruunic"
 
-        _CVERIFY = function()
-          if _CAUTHOR == "Ruunic" then
+        crystal.verify = function()
+          if crystal.author == "Ruunic" or "ruunic" or "runic" or "Runic" or "RUUNIC" or "RUNIC" then
             return true
           end
           return false,error('Verification failed: Author modified')
         end
-        _CVERIFY()
+        crystal.verified = crystal.verify()
+
+        module = {
+            new = function(name,source)
+              local self = {}
+              self.name = name
+              self.source = source
+              self.execute = function(...)
+                source(...)
+              end
+              return smt(self,module)
+            end
+          }
 
         _C = {} --crystal cache
+        table.insert(_C,#_C+1,crystal.packages);
+        table.insert(_C,#_C+1,getmetatable(crystal));
         function _C.dump()
+          print('Cleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(crystal.memory)..' KB')
           for i = 1,#_C do
             if type(t[i]) == 'function' then return end
             table.remove(t,i)
@@ -289,14 +304,15 @@ function mod()
       end
     end
     print('Packages [ '..s..' ] imported from Crystal.')
-    if s.find(s,'crystal+') then
-      _CVERIFY()
-      print(memory..' KB',_CVERSION..' by '.._CAUTHOR)
+    if crystal.packages['crystal+'] then
+      print(crystal.memory..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified))
     else
-      print(memory..' KB',_CVERSION)
+      print(crystal.memory..' KB'..' '..crystal.version)
     end
   end
   crystal.packages = packages;
+
+  return math.floor( collectgarbage('count') );
 end
 
 return mod
