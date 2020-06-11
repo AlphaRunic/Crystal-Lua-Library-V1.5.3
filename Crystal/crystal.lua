@@ -3,16 +3,16 @@ crys_mt.__index = crys_mt
 
 local m,t,s,smt = math,table,string,setmetatable
 
-function __init__() --initiate
+function __init__(environment) --initiate
 
   crystal = { packages = { } }; --crystal.packages
 
   crystal.version = 'Crystal v.1.6.2 Alpha'
 
-  local importerMem = require'Crystal.importer'(); --global import(...) function
+  local importerMem = require('Crystal.importer')(enviroment); --global import(...) function
 
   getseed = function() --used for math.randomseed() and Random.new()
-    return math.random(99999999,os.time())
+    return os.time() * 2
   end
 
   randomize = function()
@@ -47,9 +47,8 @@ function __init__() --initiate
         if waitTime then
           sleep(waitTime)
         end
-        return i
       end
-    else
+    elseif iterations == math.huge or iterations == 0 then
       while true do
         pcall(func)
         if waitTime then

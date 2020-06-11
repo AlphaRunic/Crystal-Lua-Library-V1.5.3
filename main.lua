@@ -1,11 +1,19 @@
-local crystal = require'Crystal.crystal'() --import library
+local crystal = require('Crystal.crystal')(getfenv()) --import library
 
-import("math","string","table","random","class","crystal+") -->> crystal.packages
+import("math","string","table","random","class","color","crystal+") -->> crystal.packages
+
+local purple = Color.fromRGB(127, 0, 127)
+print(purple.r, purple.g, purple.b)
+local white = Color.fromHex('#FFFFFF')
+print(white.byte1)
+print(white.byte2)
+print(white.byte3)
 
 
+--[[
 local rand = Random.new(getseed()) -->> creates a new random object
 local mynum = rand.next(1,10) -->> returns random # between 1 and 10
-local percent = Random.percent(25) -->> returns true if random # between 25 and 100 is less than or equal to 25
+local percent = rand.percent(25) -->> returns true if random # between 25 and 100 is less than or equal to 25
 
 if percent then
   print('25% chance, yet I still outputted!')
@@ -35,6 +43,7 @@ local myClass = Class.new('CoolClass',class_mtd); -->> creates a new class objec
 --print(myClass.foo) -->> foo
 local mod = module.new('MyModule',myClass.src) -->> use module src from class
 mod.execute(mod.name) -->> mymodule says: foo, bar, 123
+]]
 
 if crystal.packages['crystal+'] then --check if pkg is installed
   _C.dump() --dump cache

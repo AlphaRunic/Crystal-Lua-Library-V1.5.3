@@ -1,21 +1,21 @@
 local m,s,t,smt = math,string,table,setmetatable
 
-function mod()
+function mod(enviroment)
 
   local packages = { };
 
-  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class', ['crystal+'] = 'crystal+'} --valid packages
+  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class', color = 'color', ['crystal+'] = 'crystal+'} --valid packages
 
   import = function(...)
   
     local pkgList = { ... };
-    assert(pkgList~=nil and #pkgList >= 1 and type(pkgList) == 'table','Provided package list is not a table.');
+    assert(pkgList~=nil and #pkgList >= 1 and type(pkgList) == 'table','Provided package list is not a table or is empty.');
     local lastPkg = pkgList[#pkgList];
     
     for i,pkgName in pairs(pkgList) do
 
       packages[pkgName] = pkgName;
-      assert(pkgName~=nil and type(pkgName) == 'string' and accepted[pkgName] ~= nil, 'Package name '..pkgName..' invalid. ');
+      assert(pkgName~=nil and type(pkgName) == 'string' and accepted[pkgName] ~= nil, 'Package name '..pkgName..' is invalid. ');
 
       --all library data!
       if pkgName == 'math' then
@@ -129,8 +129,34 @@ function mod()
             swapped = nil
             return t
           end,
-          display = function(t) for i,v in pairs(t) do if i == nil then i = 'nil' elseif v == nil then v = 'nil' end print(tostring(i)..' : '..tostring(v)) end end,
-          removeall = function(t) for i = 1,#t do t.remove(t,i) end end,
+          display = function(t)
+            for i,v in pairs(t) do
+              if not i then 
+                i = 'nil'
+              elseif not v then
+                v = 'nil'
+              end
+              print(tostring(i)..' : '..tostring(v))
+            end
+          end,
+          empty = function(t)
+            for i = 1,#t do
+              t.remove(t,i)
+            end
+          end,
+          random = function(t, min, max)
+            min, max = min or 1, max or #t
+            local rnum = m.random(min, max)
+            local n = 0
+            local rval
+            for i,v in pairs(t) do
+              n = n + 1
+              if n == rnum then
+                return rval == v, n == 0
+              end
+            end
+            return rval
+          end,
 
         }
 
@@ -146,7 +172,84 @@ function mod()
           len = s.len,
           sub = s.sub,
           gsub = s.gsub,
-          split = s.split,
+          join = function(list, delimiter)
+            local len = getn(list)
+            if len == 0 then
+                return "" 
+            end
+            local st = list[1]
+            for i = 2, len do 
+                st = st .. delimiter .. list[i] 
+            end
+            return st
+          end,
+          split = function(text, delimiter)
+            local list = {}
+            local pos = 1
+            if s.find("", delimiter, 1) then -- this would result in endless loops
+                error("Delimiter is empty string! Use string.separate.")
+            end
+            while 1 do
+                local first, last = strfind(text, delimiter, pos)
+                if first then -- found?
+                  tinsert(list, strsub(text, pos, first-1))
+                  pos = last+1
+                else
+                  tinsert(list, strsub(text, pos))
+                  break
+                end
+            end
+            return list
+          end,
+          separate = function(s)
+            local result = {};
+            for match in s:gmatch("%S") do
+                table.insert(result, match);
+            end
+            return result;
+          end,
+          explode = function(sep, str, limit)
+            if not sep or sep == "" then
+                return false
+            end
+            if not str then
+                return false
+            end
+            limit = limit or m.huge
+            if limit == 0 or limit == 1 then
+                return { str }, 1
+            end
+
+            local r = {}
+            local n, init = 0, 1
+
+            while true do
+                local s,e = strfind(str, sep, init, true)
+                if not s then
+                  break
+                end
+                r[#r+1] = strsub(str, init, s - 1)
+                init = e + 1
+                n = n + 1
+                if n == limit - 1 then
+                  break
+                end
+            end
+
+            if init <= strlen(str) then
+                r[#r+1] = strsub(str, init)
+            else
+                r[#r+1] = ""
+            end
+            n = n + 1
+
+            if limit < 0 then
+                for i=n, n + limit + 1, -1 do r[i] = nil end
+                n = n + limit
+            end
+
+            return r, n
+          end,
           lower = s.lower,
           upper = s.upper,
           reverse = s.reverse,
@@ -156,7 +259,7 @@ function mod()
 
       elseif pkgName == 'spring' then
 
-        local Spring = {}
+        Spring = {}
         local ITERATIONS	= 8
 
         function Spring.new(self, mass, force, damping, speed)
@@ -221,20 +324,21 @@ function mod()
         Random = {
           new = function(seed)
             local self = {}
+
             if seed then
-              math.randomseed(seed)
+              randomize()
             end
+
             self.next = function(n0,n1)
-              return math.random(n0,n1)
+              return m.random(n0, n1)
             end
-            return smt(self,Random)
-          end,
-          percent = function(perc)
-            perc = perc or 1
-            m.randomseed(os.time())
-            min,max = 1,perc
-            local r = m.random(min,max)
-            return r > perc/2
+            self.percent = function(perc)
+              perc = perc or 1
+              local r = m.random(0, perc)
+              return r <= perc
+            end
+
+            return smt(self, Random)
           end,
         }
 
@@ -257,6 +361,28 @@ function mod()
           end
         };
 
+      elseif pkgName == 'color' then
+
+        Color = {
+          fromRGB = function(r, g, b)
+            local newColor = {
+              r = r,
+              g = g,
+              b = b
+            }
+            return setmetatable(newColor, Color)
+          end,
+          fromHex = function(hex)
+            local split = string.split(hex, '')
+            local newColor = {
+              byte1 = split[2]..split[3],
+              byte2 = split[4]..split[5],
+              byte3 = split[6]..split[7]
+            }
+            return setmetatable(newColor, COlor)
+          end,
+        }
+
       elseif pkgName == 'crystal+' then
 
         crystal.author = "Ruunic"
@@ -265,7 +391,7 @@ function mod()
           if crystal.author == "Ruunic" or "ruunic" or "runic" or "Runic" or "RUUNIC" or "RUNIC" then
             return true
           end
-          return false,error('Verification failed: Author modified')
+          return false, error('Verification failed: Author modified')
         end
         crystal.verified = crystal.verify()
 
@@ -282,14 +408,14 @@ function mod()
           }
 
         _C = {} --crystal cache
-        table.insert(_C,#_C+1,crystal.packages);
-        table.insert(_C,#_C+1,getmetatable(crystal));
+        t.insert(_C,#_C+1,crystal.packages);
+        t.insert(_C,#_C+1,getmetatable(crystal));
         function _C.dump()
-          print('Cleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(crystal.memory)..' KB')
           for i = 1,#_C do
-            if type(t[i]) == 'function' then return end
-            table.remove(t,i)
+            if i == 'dump' then return end
+            t.remove(t,i)
           end
+          print('\nCleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(crystal.memory)..' KB\n')
         end
 
       end
@@ -306,8 +432,10 @@ function mod()
     print('Packages [ '..s..' ] imported from Crystal.')
     if crystal.packages['crystal+'] then
       print(crystal.memory..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified))
+      print('\n')
     else
       print(crystal.memory..' KB'..' '..crystal.version)
+      print('\n')
     end
   end
   crystal.packages = packages;
