@@ -4,7 +4,19 @@ function mod(enviroment)
 
   local packages = { };
 
-  local accepted = {math = 'math', string = 'string', table = 'table',spring = 'spring',rotation = 'rotation',random = 'random',class = 'class', color = 'color', ['crystal+'] = 'crystal+'} --valid packages
+  local accepted = {
+    math = 'math',
+    string = 'string',
+    table = 'table',
+    spring = 'spring',
+    rotation = 'rotation',
+    random = 'random',
+    class = 'class',
+    color = 'color',
+    tokenizer = 'tokenizer',
+    ['crystal.rbx'] = 'crystal.rbx'
+    ['crystal+'] = 'crystal+'
+  } --valid packages
 
   import = function(...)
   
@@ -250,6 +262,31 @@ function mod(enviroment)
 
             return r, n
           end,
+          gsplit = function(s, sep) --split but with iterator & coroutines
+            return coroutine.wrap(function()
+                if s == '' or sep == '' then
+                  coroutine.yield(s)
+                  return
+                end
+                local lasti = 1
+                for v,i in s:gmatch('(.-)'..sep..'()') do
+                  coroutine.yield(v)
+                  lasti = i
+                end
+                coroutine.yield(s:sub(lasti))
+            end)
+          end,
+          csplit = function(str, sep) --split by character
+            local ret={}
+            local n=1
+            for w in str:gmatch("([^"..sep.."]*)") do
+                ret[n] = ret[n] or w -- only set once (so the blank after a string is ignored)
+                if w=="" then
+                  n = n + 1
+                end -- step forwards on a blank but not a string
+            end
+            return ret
+          end,
           lower = s.lower,
           upper = s.upper,
           reverse = s.reverse,
@@ -305,6 +342,20 @@ function mod(enviroment)
           end
           return spring
         end
+
+      elseif pkgName == 'tokenizer' then
+
+        Tokenizer = {
+          tokens = { },
+          add = function(phrase, tokenname)
+            Tokenizer.tokens[tokenname] = phrase
+          end,
+          remove = function(tokenname)
+            if Tokenizer.tokens[tokenname] ~= nil then
+              Tokenizer.tokens[tokenname] = nil
+            end
+          end,
+        }
 
       elseif pkgName == 'rotation' then
 
@@ -381,6 +432,35 @@ function mod(enviroment)
             }
             return setmetatable(newColor, COlor)
           end,
+        }
+
+      elseif pkgName == 'crystal.rbx' then
+
+        local function serv(name)
+          return game:GetService(name)
+        end
+
+        --shorthand vars
+        ws = workspace
+        light = serv('Lighting')
+        rs = serv('ReplicatedStorage')
+        rf = serv('ReplicatedFirst')
+        ss = serv('ServerStorage')
+        sss = serv('ServerScriptService')
+        as = serv('ContextActionService')
+
+        setTime = function(time)
+          local clockDigits = {1,2,3,4,5,6,7,8,9,10,11,12}
+          assert(clockDigits[time] ~= nil, '')
+          local times = string.split(tostring(time), ':')
+          if times[1] == nil then times[1] = '12'
+          if times[2] == then times[2] = '00'
+          if times[3] == nil then times[3] = '00'
+          light.TimeOfDay = times[1]..':'..times[2]..':'..time[3]
+        end
+
+        Rbx = {
+          
         }
 
       elseif pkgName == 'crystal+' then
