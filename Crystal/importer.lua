@@ -1,33 +1,32 @@
 local m,s,t,smt = math,string,table,setmetatable
 
-function mod(enviroment)
+return function(enviroment)
 
   local packages = { };
 
   local accepted = {
+
     math = 'math',
     string = 'string',
     table = 'table',
-    spring = 'spring',
-    rotation = 'rotation',
     random = 'random',
     class = 'class',
     color = 'color',
     tokenizer = 'tokenizer',
-    ['crystal.rbx'] = 'crystal.rbx'
+    ['crystal.rbx'] = 'crystal.rbx',
     ['crystal+'] = 'crystal+'
+		
   } --valid packages
 
   import = function(...)
   
     local pkgList = { ... };
-    assert(pkgList~=nil and #pkgList >= 1 and type(pkgList) == 'table','Provided package list is not a table or is empty.');
-    local lastPkg = pkgList[#pkgList];
-    
-    for i,pkgName in pairs(pkgList) do
+    assert(pkgList~=nil and #pkgList >= 1 and type(pkgList) == 'table','Provided package list is not a table or is empty.');    
+    for pkgNum, pkgName in pairs(pkgList) do
 
-      packages[pkgName] = pkgName;
       assert(pkgName~=nil and type(pkgName) == 'string' and accepted[pkgName] ~= nil, 'Package name '..pkgName..' is invalid. ');
+
+      packages[pkgNum] = pkgName;
 
       --all library data!
       if pkgName == 'math' then
@@ -79,6 +78,62 @@ function mod(enviroment)
           random = function(x,y) if not x or y then return end return m.random(x,y) end,
           lerp = function(a,b,t) if not a or b then return end if not t then t = 1 end return a + (b - a) * t end,
           smooth = function(x,t) if not x then return end if not t then t = 1 end return x / ((math.e*t)/(2+1/3)) end,
+					format = function(n, d)
+						local function comma_value(amount)
+							local formatted = amount
+							while true do  
+								formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+								if (k==0) then
+									break
+								end
+							end
+							return formatted
+						end
+						local function round(val, decimal)
+							if (decimal) then
+								return math.floor( (val * 10^decimal) + 0.5) / (10^decimal)
+							else
+								return math.floor(val+0.5)
+							end
+						end
+						function format_num(amount, decimal, prefix, neg_prefix)
+							local str_amount,  formatted, famount, remain
+
+							decimal = decimal or 0  -- default 2 decimal places
+							neg_prefix = neg_prefix or "-" -- default negative sign
+
+							famount = math.abs(round(amount,decimal))
+							famount = math.floor(famount)
+
+							remain = round(math.abs(amount) - famount, decimal)
+
+										-- comma to separate the thousands
+							formatted = comma_value(famount)
+
+										-- attach the decimal portion
+							if (decimal > 0) then
+								remain = s.sub(tostring(remain),3)
+								formatted = formatted .. "." .. remain ..
+														s.rep("0", decimal - s.len(remain))
+							end
+
+										-- attach prefix string e.g '$' 
+							formatted = (prefix or "") .. formatted 
+
+										-- if value is negative then format accordingly
+							if (amount<0) then
+								if (neg_prefix=="()") then
+									formatted = "("..formatted ..")"
+								else
+									formatted = neg_prefix .. formatted 
+								end
+							end
+
+							return formatted
+						end
+
+						return format_num(n, d)
+					end,
           --constants
           e = m.exp(1),
           phi = 1.61803398874989484820,
@@ -181,6 +236,7 @@ function mod(enviroment)
           find = s.find,
           format = s.format,
           match = s.match,
+					gmatch = s.gmatch,
           len = s.len,
           sub = s.sub,
           gsub = s.gsub,
@@ -294,80 +350,21 @@ function mod(enviroment)
 
         }
 
-      elseif pkgName == 'spring' then
-
-        Spring = {}
-        local ITERATIONS	= 8
-
-        function Spring.new(self, mass, force, damping, speed)
-          local spring	= {
-            Target		= Vector3.new();
-            Position	= Vector3.new();
-            Velocity	= Vector3.new();
-            
-            Mass		= mass or 5;
-            Force		= force or 50;
-            Damping		= damping or 4;
-            Speed		= speed  or 4;
-          }
-          
-          function spring.shove(self, force)
-            local x, y, z	= force.X, force.Y, force.Z
-            if x ~= x or x == math.huge or x == -math.huge then
-              x	= 0
-            end
-            if y ~= y or y == math.huge or y == -math.huge then
-              y	= 0
-            end
-            if z ~= z or z == math.huge or z == -math.huge then
-              z	= 0
-            end
-            self.Velocity	= self.Velocity + Vector3.new(x, y, z)
-          end
-          
-          function spring.update(self, dt)
-            local scaledDeltaTime = math.min(dt,1) * self.Speed / ITERATIONS
-            
-            for i = 1, ITERATIONS do
-              local force			= self.Target - self.Position
-              local acceleration	= (force * self.Force) / self.Mass
-              
-              acceleration		= acceleration - self.Velocity * self.Damping
-              
-              self.Velocity	= self.Velocity + acceleration * scaledDeltaTime
-              self.Position	= self.Position + self.Velocity * scaledDeltaTime
-            end
-            
-            return self.Position
-          end
-          return spring
-        end
-
       elseif pkgName == 'tokenizer' then
 
+				Tokens = { };
         Tokenizer = {
-          tokens = { },
           add = function(phrase, tokenname)
-            Tokenizer.tokens[tokenname] = phrase
+						tokenname = tostring(tokenname)
+						local Token = {phrase = phrase, name = tokenname}
+            Tokens[tokenname] = phrase
+						return smt(Token, Tokenizer)
           end,
           remove = function(tokenname)
-            if Tokenizer.tokens[tokenname] ~= nil then
-              Tokenizer.tokens[tokenname] = nil
+            if Tokens[tokenname] ~= nil then
+              Tokens[tokenname] = nil
             end
           end,
-        }
-
-      elseif pkgName == 'rotation' then
-
-        Rotation = {
-          new = function(rx,ry,rz)
-            assert(type(rx) and type(ry) and type(rz) == 'number', 'Invalid parameters.')
-            return CFrame.Angles(math.rad(ry),math.rad(rz),math.rad(rx))
-          end,
-          deg = function(rot)
-            assert(rot~=nil, 'Invalid rotation CFrame provided.')
-            return CFrame.Angles(math.deg(rot.x),math.deg(rot.y),math.deg(rot.z))
-          end
         }
 
       elseif pkgName == 'random' then
@@ -424,7 +421,7 @@ function mod(enviroment)
             return setmetatable(newColor, Color)
           end,
           fromHex = function(hex)
-            local split = string.split(hex, '')
+            local split = string.separate(hex)
             local newColor = {
               byte1 = split[2]..split[3],
               byte2 = split[4]..split[5],
@@ -439,29 +436,154 @@ function mod(enviroment)
         local function serv(name)
           return game:GetService(name)
         end
+				local function ffcoc(model, childName)
+					return model:FindFirstChildOfClass(childName)
+				end
 
         --shorthand vars
+
+				plrs = serv('Players')
+				if script:IsA('LocalScript') then
+					plr = plrs.LocalPlayer
+					repeat wait() until plr.character
+					chr = plr.character
+					pgui = plr.PlayerGui
+					backpack = plr.Backpack
+					pscripts = plr.PlayerScripts
+					toolequipped = function()
+						return ffoc(chr, 'Tool')
+					end
+				end
+
         ws = workspace
         light = serv('Lighting')
+				sound = serv('SoundService')
+				db = serv('Debris')
         rs = serv('ReplicatedStorage')
         rf = serv('ReplicatedFirst')
         ss = serv('ServerStorage')
         sss = serv('ServerScriptService')
         as = serv('ContextActionService')
+				rt = serv('RunService')
+
+        Animator = {}
+				Animator.__index = Animator
+        function Animator:NewRig(Model)
+          local Rig do
+						Rig = {}
+						local Loader = ffcoc(Model, 'AnimationController') or ffcoc(Model, 'Humanoid')
+						Rig.AnimationFolder = nil
+						Rig.Animations = {}
+						function Rig:Animate(anim)
+							local animFolder = Rig.Animations or Model
+							Anim = Loader:LoadAnimation(animFolder[anim])
+							Anim:Play()
+							Rig.Animations[#Rig.Animations+1] = anim
+							return Anim 
+						end
+						function Rig:StopAnimations()
+							for _, Anim in pairs(Rig.Animations) do
+								Anim:Stop()
+							end
+						end
+					end
+					return smt(Rig, Animator)
+        end
+
+				VectorToUDim = function(vector2,conversionType)
+
+					if conversionType == 'Scale' or 'scale' or 's' or 'S' then
+						return UDim2.new(vector2.x,0,vector2.y,0)
+					else
+						return UDim2.new(0,vector2.x,0,vector2.y,0)
+					end
+
+				end
+
+				Rotation = {
+
+          new = function(rx,ry,rz)
+            assert(type(rx) and type(ry) and type(rz) == 'number', 'Invalid parameters.')
+            return CFrame.Angles(math.rad(ry),math.rad(rz),math.rad(rx))
+          end,
+
+          rad = function(rot)
+						local i = type(rot)
+            assert(rot~=nil and i ~= 'string' and i ~= 'function', 'Invalid rotation CFrame provided.')
+            return CFrame.Angles(math.deg(rot.x),math.deg(rot.y),math.deg(rot.z))
+          end
+
+        }
+
+				Spring = {
+					new = function(self, mass, force, damping, speed, itr)
+						local ITERATION	= itr or 8
+						local spring	= {
+							Target		= Vector3.new();
+							Position	= Vector3.new();
+							Velocity	= Vector3.new();
+							
+							Mass		= mass or 5;
+							Force		= force or 50;
+							Damping		= damping or 4;
+							Speed		= speed  or 4;
+						}
+						
+						function spring.shove(self, force)
+							local x, y, z	= force.X, force.Y, force.Z
+							if x ~= x or x == math.huge or x == -math.huge then
+								x	= 0
+							end
+							if y ~= y or y == math.huge or y == -math.huge then
+								y	= 0
+							end
+							if z ~= z or z == math.huge or z == -math.huge then
+								z	= 0
+							end
+							self.Velocity	= self.Velocity + Vector3.new(x, y, z)
+						end
+						
+						function spring.update(self, dt)
+							local scaledDeltaTime = math.min(dt,1) * self.Speed / ITERATIONS
+							
+							for i = 1, ITERATIONS do
+								local force			= self.Target - self.Position
+								local acceleration	= (force * self.Force) / self.Mass
+								
+								acceleration		= acceleration - self.Velocity * self.Damping
+								
+								self.Velocity	= self.Velocity + acceleration * scaledDeltaTime
+								self.Position	= self.Position + self.Velocity * scaledDeltaTime
+							end
+							
+							return self.Position
+						end
+						return spring
+					end
+				}
 
         setTime = function(time)
           local clockDigits = {1,2,3,4,5,6,7,8,9,10,11,12}
           assert(clockDigits[time] ~= nil, '')
           local times = string.split(tostring(time), ':')
-          if times[1] == nil then times[1] = '12'
-          if times[2] == then times[2] = '00'
-          if times[3] == nil then times[3] = '00'
+          if times[1] == nil then times[1] = '12' end
+          if times[2] == nil then times[2] = '00' end
+          if times[3] == nil then times[3] = '00' end
           light.TimeOfDay = times[1]..':'..times[2]..':'..time[3]
         end
 
-        Rbx = {
-          
-        }
+				v3 = Vector3.new
+				cf = CFrame.new
+				ang = CFrame.Angles
+				v2 = Vector2.new
+				ud = UDim2.new
+
+				explode = function(part, blastPressure, radius)
+					local explosion = Instance.new('Explosion')
+					explosion.BlastPressure = blastPressure or explosion.BlastPressure
+					explosion.Radius = radius or explosion.Radius
+					explosion.Parent = part
+				end
 
       elseif pkgName == 'crystal+' then
 
@@ -490,26 +612,30 @@ function mod(enviroment)
         _C = {} --crystal cache
         t.insert(_C,#_C+1,crystal.packages);
         t.insert(_C,#_C+1,getmetatable(crystal));
+				t.insert(_C,#_C+1,enviroment)
         function _C.dump()
           for i = 1,#_C do
             if i == 'dump' then return end
             t.remove(t,i)
           end
-          print('\nCleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(crystal.memory)..' KB\n')
+          print('\nCleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(math.floor(collectgarbage('count'))+crystal.recheckMemory())..' KB\n')
         end
 
       end
     end
 
     local s = ""
-    for _,v in pairs(packages) do
-      if v == lastPkg then
-        s = s..packages[v]
-      else
-        s = s..packages[v]..', '
-      end
+		local count = 0
+    for i,v in pairs(packages) do
+			count = count + 1
+			local lastPkg = packages[#packages];
+			if v == lastPkg then
+				s = s..v
+			else
+				s = s..v..', '
+			end
     end
-    print('Packages [ '..s..' ] imported from Crystal.')
+    print(count..' packages imported from Crystal. \n[ '..s..' ]')
     if crystal.packages['crystal+'] then
       print(crystal.memory..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified))
       print('\n')
@@ -522,5 +648,3 @@ function mod(enviroment)
 
   return math.floor( collectgarbage('count') );
 end
-
-return mod

@@ -1,0 +1,119 @@
+
+=======================================================================
+
+							 ___  ____  _  _  ___  ____   __    __   
+							/ __)(  _ \( \/ )/ __)(_  _) /__\  (  )  
+						 ( (__  )   / \  / \__ \  )(  /(__)\  )(__ 
+							\___)(_)\_) (__) (___/ (__)(__)(__)(____)
+											 Version: 1.6.8 Alpha
+														 by Runic
+
+=======================================================================
+
+Note: This documentation only shows methods and objects of each package with no descriptions. Examples are in main.lua.
+
+-[	Setup
+
+	crystal = require('Crystal.crystal')(getfenv());
+	import('package', 'anotherpackage', 'someotherpackage')
+
+- [ 	Packages
+
+	- [ 	math (extended)
+			csc
+			sec
+			cot
+			csch
+			sech
+			coth
+			acsc
+			asec
+			acot
+			acot2
+			root (rt)
+			square (sq)
+			cube (cb)
+			exponentialize (expo)
+			square root (sqrt)
+			cube root (cbrt)
+			lerp
+			smooth
+			format
+			euler's number (e)
+			phi
+			deli
+			epsilon
+			pyth
+			thed
+			frtf
+			em
+			gelf
+
+	- [ 	table (extended)
+			strings
+			numbers
+			zip
+			swap
+			display
+			empty
+			random
+
+	- [ 	string (extended)
+			split
+			join
+			separate
+			explode
+			gsplit
+			character split (csplit)
+
+	- [ 	Random
+			new
+			- [
+				next
+				percent
+
+	- [ 	Class
+			new
+			- [
+				edit
+
+	- [		Color
+			fromRGB
+			fromHex
+
+	- [ 	Tokenizer
+			Tokens
+			add
+			remove
+
+	- [		crystal+
+			verify
+			module
+			- [
+				new
+				- [
+					execute
+			crystal cache (_C)
+			- [
+				dump
+
+	- [ 	crystal.rbx
+			setTime
+			explode
+			VectorToUDim
+			Spring
+			- [
+				new
+				-[
+					update
+					shove
+			Rotation
+			- [
+				new
+				rad
+			Animator
+			- [
+				NewRig
+				- [
+					Animate
+					StopAnimations

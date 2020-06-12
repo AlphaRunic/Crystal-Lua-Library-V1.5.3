@@ -3,11 +3,12 @@ crys_mt.__index = crys_mt
 
 local m,t,s,smt = math,table,string,setmetatable
 
-function __init__(environment) --initiate
+return function(environment) --initiate
 
-  crystal = { packages = { } }; --crystal.packages
-
-  crystal.version = 'Crystal v.1.6.2 Alpha'
+  crystal = {
+		packages = { },
+		version = 'Crystal v.1.6.8 Alpha'
+	}; --crystal.packages
 
   local importerMem = require('Crystal.importer')(enviroment); --global import(...) function
 
@@ -35,7 +36,7 @@ function __init__(environment) --initiate
     if not dlt then dlt = 0 end
     local s do
       sleep(dlt)
-      pcall(fn)
+      s=coroutine.wrap(fn)
     end
     return s
   end
@@ -43,14 +44,14 @@ function __init__(environment) --initiate
   sequence = function(func,iterations,waitTime) --loops func iterations (or inf) times while waiting waitTime every iteration
     if iterations < math.huge then
       for i = 1,iterations do
-        pcall(func)
+        coroutine.wrap(func)
         if waitTime then
           sleep(waitTime)
         end
       end
     elseif iterations == math.huge or iterations == 0 then
       while true do
-        pcall(func)
+        coroutine.wrap(func)
         if waitTime then
           sleep(waitTime)
         end
@@ -58,9 +59,10 @@ function __init__(environment) --initiate
     end
   end
 
-  crystal.memory = math.floor (  collectgarbage('count') + importerMem  ); --crystal memory
+  crystal.memory = math.floor(  collectgarbage('count') + importerMem  ); --crystal memory
+	crystal.recheckMemory = function()
+		return math.floor(collectgarbage('count'))-importerMem
+	end
 
-  return setmetatable(crystal,crys_mt)
+  return setmetatable(crystal, crys_mt)
 end
-
-return __init__
