@@ -5,17 +5,21 @@
 							/ __)(  _ \( \/ )/ __)(_  _) /__\  (  )  
 						 ( (__  )   / \  / \__ \  )(  /(__)\  )(__ 
 							\___)(_)\_) (__) (___/ (__)(__)(__)(____)
-											 Version: 1.6.8 Alpha
+											 Version: 1.7.5 Alpha
 														 by Runic
 
 =======================================================================
 
 Note: This documentation only shows methods and objects of each package with no descriptions. Examples are in main.lua.
 
--[	Setup
+- [	Setup
 
-	crystal = require('Crystal.crystal')(getfenv());
+	crystal = require('Crystal.crystal')({ --[[settings here...]] });
 	import('package', 'anotherpackage', 'someotherpackage')
+
+- [ Settings
+
+	displayStats | true, false | Displays packages, memory, and Version
 
 - [ 	Packages
 
@@ -57,6 +61,7 @@ Note: This documentation only shows methods and objects of each package with no 
 			display
 			empty
 			random
+			find
 
 	- [ 	string (extended)
 			split
@@ -81,10 +86,11 @@ Note: This documentation only shows methods and objects of each package with no 
 			fromRGB
 			fromHex
 
-	- [ 	Tokenizer
+	- [ 	Tokenizer !! String library will be imported if not installed. !!
 			Tokens
 			add
 			remove
+			sfind
 
 	- [		crystal+
 			verify

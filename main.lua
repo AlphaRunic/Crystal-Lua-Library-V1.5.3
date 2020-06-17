@@ -1,4 +1,8 @@
-local crystal = require('Crystal.crystal')(getfenv()) --import library
+local crystal = require('Crystal.crystal')(
+	{
+		displayStats = true,
+	}
+) --import library
 
 import("string","math","table","random","class","color","tokenizer","crystal+") -->> crystal.packages
 
@@ -7,20 +11,10 @@ Tokenizer.add('#', 'HASHTAG') -->> Tokenizer.tokens['HASHTAG'] = '#'
 Tokenizer.add('1234567890', 'DIGITS')
 local Text = '#01!5?##2%^6653#(),3254'
 
-local amount = 0
-local amount2 = 0
+local hashtag_amount = Tokenizer.sfind(Text, 'HASHTAG') --this looks for the character # in the text
+local num_amount = Tokenizer.sfind(Text, 'DIGITS', true) --this looks for any numbers. the true means that it will turn 1234567890 into a table with each number and search for each value in the table
 
-for hashtag in string.gmatch(Text, Tokens['HASHTAG']) do
-	amount = amount + 1
-end
-
-for _, Digit in pairs(string.separate(Tokens['DIGITS'])) do
-	for Number in string.gmatch(Text, Digit) do
-		amount2 = amount2 + 1
-	end
-end
-
-print('Hashtags found:', amount, 'Digits found:', amount2) -->> 4, 12
+print('Hashtags found:', hashtag_amount, 'Digits found:', num_amount) -->> 4, 12
 
 local purple = Color.fromRGB(127, 0, 127) -->> {r: 127, g: 0, b: 127}
 print(purple.r, purple.g, purple.b) -->> 127 0 127
@@ -38,37 +32,36 @@ if percent then
   print('25% chance, yet I still outputted!')
 end
 
-print(math.e, math.format(3742893)) -->> 2.7182.... 3,742,893
+print(math.e, math.format(37428893)) -->> 2.7182.... 37,428,893
 
 local array1 = {'hey there', 2, ""}
 local array2 = {'part 2!',3.14,7}
 
 local zipped = table.zip(array1,array2) -->> merges array1 and array2 into 1 table (works with any amount of arrays)
-table.display(zipped) --> hey there, 2, part 2!,  , 3.14, 7, wow
-table.display(table.numbers(array2)) -->> 3.14, 7
-table.display(table.strings(array1)) -->> hey there, 
+table.display(zipped) -->> hey there, 2, part 2!,  , 3.14, 7, wow
+table.display(table.numbers(array2)) --puts all numbers from array2 into an array which is returned by table.numbers >> 3.14, 7
 
-function src(parameter) -->> wrapped module
-  local myTable = {'bar'}
-  print(parameter..' says: ')
-  table.display(myTable)
-end
-local class_mtd = { -->> where variables/functions of the class are stored
-  print = function(x) return print(x) end,
-  foo = 'foo',
-  src = src, -->> myClass.src
-}
-local myClass = Class.new('CoolClass',class_mtd); -->> creates a new class object with name CoolClass and info class_mtd
---myClass.print('hi') -->> hi
---print(myClass.foo) -->> foo
-local mod = module.new('MyModule',myClass.src) -->> use module src from class
-mod.execute(mod.name) -->> mymodule says: foo, bar, 123
-]]
+--python-like classes
+local MyClass = Class('Animal', --this part is identical to from module import class, this would work almost exactly like python in modules.
+	function()
+		for i,v in pairs(MyClass.Methods) do --all methods added to the class are stored here
+			for i,v in pairs(v) do
+				v()
+			end
+		end
+	end,
+	{Dog = function()
+		print('I am a dog')
+	end},
+	{Giraffe = function()
+		print('I am a giraffe')
+	end}
+)
+local Animal = MyClass()
+Animal.Dog() -->> I am a dog
+Animal.Giraffe() -->> I am a giraffe
 
-local cpInstalled
-for i,v in pairs(crystal.packages) do
-	if v == 'crystal+' then cpInstalled = true break end
-end
-if cpInstalled then --check if pkg is installed
+if crystal.findpkg('crystal+') then --check if pkg is installed
   _C:dump() --dump cache
 end
+]]

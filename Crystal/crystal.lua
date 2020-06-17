@@ -3,17 +3,31 @@ crys_mt.__index = crys_mt
 
 local m,t,s,smt = math,table,string,setmetatable
 
-return function(environment) --initiate
+return coroutine.wrap(function(settings) --initiate
 
   crystal = {
 		packages = { },
-		version = 'Crystal v.1.6.8 Alpha'
+		version = 'Crystal v.1.7 Alpha',
+		findpkg = function(pkg)
+			local found_pkg = false
+			for i,v in pairs(crystal.packages) do
+				if i == pkg or v == pkg then found_pkg = true break end
+			end
+			return found_pkg
+		end
 	}; --crystal.packages
 
-  local importerMem = require('Crystal.importer')(enviroment); --global import(...) function
+  local importerMem = require('Crystal.importer')(settings); --global import(...) function
 
-  getseed = function() --used for math.randomseed() and Random.new()
-    return os.time() * 2
+	warn = function(msg)
+		assert(type(msg) == 'string', 'Message is not a string.')
+		print('[Crystal Warning]  ::  '..msg)
+	end
+
+	now = os.time
+
+  getseed = function() --used for math.randomseed and Random.new
+    return now() * 2
   end
 
   randomize = function()
@@ -25,11 +39,12 @@ return function(environment) --initiate
     local beforeWait = os.time()
     os.execute('sleep '..tonumber(n))
     local dt = (os.time()-beforeWait)-n
-    return dt
+    return n, dt
   end
 
   yield = function(condition) --stops script until condition is met (infinite yield possible)
     repeat sleep() until condition
+		return condition
   end
 
   scope = function(fn,dlt) --pcalls fn with delay time dlt (or 0) within a new scope
@@ -38,7 +53,7 @@ return function(environment) --initiate
       sleep(dlt)
       s=coroutine.wrap(fn)
     end
-    return s
+    return s, dlt
   end
 
   sequence = function(func,iterations,waitTime) --loops func iterations (or inf) times while waiting waitTime every iteration
@@ -57,12 +72,15 @@ return function(environment) --initiate
         end
       end
     end
+		return 
   end
 
-  crystal.memory = math.floor(  collectgarbage('count') + importerMem  ); --crystal memory
-	crystal.recheckMemory = function()
-		return math.floor(collectgarbage('count'))-importerMem
+	local function getMemory()
+		local x = math.floor( collectgarbage('count') );
+		return x
 	end
+  crystal.memory = getMemory() --crystal memory
+	crystal.recheckMemory = getMemory
 
   return setmetatable(crystal, crys_mt)
-end
+end)
