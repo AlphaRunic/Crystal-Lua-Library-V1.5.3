@@ -62,6 +62,13 @@ Note: This documentation only shows methods and objects of each package with no 
 			empty
 			random
 			find
+			sum
+			sub
+			mult
+			div
+			mod
+			exp
+
 
 	- [ 	string (extended)
 			split
