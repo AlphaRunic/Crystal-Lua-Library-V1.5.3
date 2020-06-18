@@ -1,3 +1,4 @@
+print(_VERSION..'.5')
 local crys_mt = {};
 crys_mt.__index = crys_mt
 
@@ -7,7 +8,8 @@ return coroutine.wrap(function(settings) --initiate
 
   crystal = {
 		packages = { },
-		version = 'Crystal v.1.9.1 Alpha',
+		version = 'Crystal v.1.9.4 Alpha',
+		author = 'Riley "Runic" Peel',
 		findpkg = function(pkg)
 			local found_pkg = false
 			for i,v in pairs(crystal.packages) do
@@ -84,4 +86,4 @@ return coroutine.wrap(function(settings) --initiate
 	local mt = setmetatable(crystal, crys_mt)
 
   return mt
-end)
+end), crys_mt

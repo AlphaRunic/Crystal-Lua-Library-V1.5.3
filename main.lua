@@ -4,7 +4,7 @@ local crystal = require('Crystal.crystal')(
 	}
 ) --import library
 
-import("string","math","table","random","class","color","tokenizer","crystal+") -->> crystal.packages
+import("string","math","table","random","lua_py","color","tokenizer","crystal+") -->> crystal.packages
 
 --[[
 Tokenizer.add('#', 'HASHTAG') -->> Tokenizer.tokens['HASHTAG'] = '#'
@@ -65,7 +65,7 @@ local MyClass = Class('Animal', --this part is identical to from module import c
 local Animal = MyClass() --load class to variable "Animal"
 Animal.Dog() -->> I am a dog
 Animal.Giraffe() -->> I am a giraffe
-]]
+--]]
 
 if crystal.findpkg('crystal+') then --check if pkg is installed
   _C:dump() --dump cache

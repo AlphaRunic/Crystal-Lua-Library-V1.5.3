@@ -14,9 +14,9 @@ return function(settings)
     string = 'string',
     table = 'table',
     random = 'random',
-    class = 'class',
     color = 'color',
     tokenizer = 'tokenizer',
+		lua_py = 'lua_py',
     ['crystal.rbx'] = 'crystal.rbx',
     ['crystal+'] = 'crystal+'
 		
@@ -29,6 +29,7 @@ return function(settings)
 
     for pkgNum, pkgName in pairs(pkgList) do
 
+			pkgName = s.lower(pkgName)
 			local skip
 			if crystal.findpkg(pkgName) then
 				warn('Package "'..pkgName..'" is already installed.')
@@ -275,16 +276,14 @@ return function(settings)
 						split = function(text, delimiter)
 							local list = {}
 							local pos = 1
-							if s.find("", delimiter, 1) then -- this would result in endless loops
-									error("Delimiter is empty string! Use string.separate.")
-							end
+							assert(text ~= '', "Delimiter is empty string! Use string.separate.") -- this would result in endless loops
 							while 1 do
-									local first, last = strfind(text, delimiter, pos)
+									local first, last = s.find(text, delimiter, pos)
 									if first then -- found?
-										tinsert(list, strsub(text, pos, first-1))
+										t.insert(list, s.sub(text, pos, first-1))
 										pos = last+1
 									else
-										tinsert(list, strsub(text, pos))
+										t.insert(list, s.sub(text, pos))
 										break
 									end
 							end
@@ -293,7 +292,7 @@ return function(settings)
 						separate = function(s)
 							local result = {};
 							for match in s:gmatch("%S") do
-									table.insert(result, match);
+									t.insert(result, match);
 							end
 							return result;
 						end,
@@ -313,11 +312,11 @@ return function(settings)
 							local n, init = 0, 1
 
 							while true do
-									local s,e = strfind(str, sep, init, true)
+									local s,e = s.find(str, sep, init, true)
 									if not s then
 										break
 									end
-									r[#r+1] = strsub(str, init, s - 1)
+									r[#r+1] = s.sub(str, init, s - 1)
 									init = e + 1
 									n = n + 1
 									if n == limit - 1 then
@@ -326,7 +325,7 @@ return function(settings)
 							end
 
 							if init <= strlen(str) then
-									r[#r+1] = strsub(str, init)
+									r[#r+1] = s.sub(str, init)
 							else
 									r[#r+1] = ""
 							end
@@ -368,6 +367,51 @@ return function(settings)
 						upper = s.upper,
 						reverse = s.reverse,
 						rep = s.rep,
+						sum = function(t)
+							local result = 0
+							for _, v in pairs(t) do
+								if type(v) == 'number' then
+									result = result + v
+								end
+							end
+							return result
+						end,
+						sub = function()
+							local result = 0
+							for _, v in pairs(t) do
+								if type(v) == 'number' then
+									result = result - v
+								end
+							end
+							return result
+						end,
+						mult = function(t)
+							local result = 0
+							for _, v in pairs(t) do
+								if type(v) == 'number' then
+									result = result * v
+								end
+							end
+							return result
+						end,
+						div = function(t)
+							local result = 0
+							for _, v in pairs(t) do
+								if type(v) == 'number' then
+									result = result / v
+								end
+							end
+							return result
+						end,
+						mod = function(t)
+							local result = 0
+							for _, v in pairs(t) do
+								if type(v) == 'number' then
+									result = math.floor(result / v) * v
+								end
+							end
+							return result
+						end
 
 					}
 
@@ -443,12 +487,14 @@ return function(settings)
 						end,
 					}
 
-				elseif pkgName == 'class' then
+				elseif pkgName == 'lua_py' then
 
 					Class = function(...)
-							local args = { ... }
-							local name, __init__
-							local methods = {}
+					
+							local args = { ... };
+							local name, __init__;
+							local methods = {};
+
 							for i,v in pairs(args) do
 								if i == 1 then
 									name = v
@@ -458,12 +504,14 @@ return function(settings)
 									t.insert(methods,#methods+1,v)
 								end
 							end
+
 							local self = {
 								Name = name,
 								Methods = methods,
 								__init__ = __init__ or function() end
-							}
-							assert(name and methods ~= nil and type(methods) == 'table','Invalid methods or name')
+							};
+
+							assert(name ~= nil and type(name) == 'string' or type(name) == 'number' and methods ~= nil and type(methods) == 'table','Invalid methods or name');
 							local function setChildren()
 								for i,v in pairs(self.Methods) do
 									for i,v in pairs(v) do
@@ -471,15 +519,21 @@ return function(settings)
 									end
 								end
 							end
-							setChildren()
+							setChildren();
+
 							return function()
 								return self
 							end
 					end;
 
+					raise = error;
+
 				elseif pkgName == 'color' then
 
+					if not crystal.findpkg('string') then import('string') end
+
 					Color = {
+
 						fromRGB = function(r, g, b)
 							local newColor = {
 								r = r,
@@ -488,6 +542,7 @@ return function(settings)
 							}
 							return setmetatable(newColor, Color)
 						end,
+
 						fromHex = function(hex)
 							local split = string.separate(hex)
 							local newColor = {
@@ -497,6 +552,7 @@ return function(settings)
 							}
 							return setmetatable(newColor, COlor)
 						end,
+
 					}
 
 				elseif pkgName == 'crystal.rbx' then
@@ -539,11 +595,12 @@ return function(settings)
 					Animator = {}
 					Animator.__index = Animator
 					function Animator:NewRig(Model)
-						local Rig do
-							Rig = {}
+
+						local Rig = {} do
 							local Loader = ffcoc(Model, 'AnimationController') or ffcoc(Model, 'Humanoid')
 							Rig.AnimationFolder = nil
 							Rig.Animations = {}
+
 							function Rig:Animate(anim, animFolder)
 								animFolder = Rig.Animations or animFolder or Model
 								Anim = Loader:LoadAnimation(animFolder[anim])
@@ -551,6 +608,7 @@ return function(settings)
 								Rig.Animations[#Rig.Animations+1] = anim
 								return Anim, Rig.Animations
 							end
+
 							function Rig:StopAnimations()
 								for _, Anim in pairs(Rig.Animations) do
 									Anim:Stop()
@@ -558,6 +616,7 @@ return function(settings)
 								return Anim
 							end
 						end
+
 						return smt(Rig, Animator), Loader
 					end
 
@@ -640,12 +699,15 @@ return function(settings)
 					}
 
 					setTime = function(time)
+
 						local clockDigits = {1,2,3,4,5,6,7,8,9,10,11,12}
-						assert(clockDigits[time] ~= nil, '')
+						
+						if not time then time = 'nil' end
 						local times = string.split(tostring(time), ':')
 						if times[1] == nil then times[1] = '12' end
 						if times[2] == nil then times[2] = '00' end
 						if times[3] == nil then times[3] = '00' end
+
 						light.TimeOfDay = times[1]..':'..times[2]..':'..time[3]
 					end
 
@@ -657,6 +719,7 @@ return function(settings)
 					twninf = TweenInfo.new
 
 					explode = function(part, blastPressure, radius)
+
 						local explosion = Instance.new('Explosion')
 						local p0 = part
 						local p1 = part:clone()
@@ -668,36 +731,68 @@ return function(settings)
 						destroy(p0)
 						yield(explosion == nil)
 						destroy(p1)
+
 					end
 
 				elseif pkgName == 'crystal+' then
 
-					crystal.author = "Ruunic"
+					if not crystal.findpkg('string') then import('string') end
+
+					local accepted_authors = {
+
+						Runic = true,
+						Ruunic = true,
+						RUNIC = true,
+						RUUNIC = true,
+						['Riley Peel'] = true
+
+					}
 
 					crystal.verify = function()
-						if crystal.author == "Ruunic" or "ruunic" or "runic" or "Runic" or "RUUNIC" or "RUNIC" then
-							return true
+						local hits, misses = 0, 0
+						local prev
+						for v, _ in pairs(accepted_authors) do
+							for _, split in pairs(string.split(v, ' ')) do
+								if s.find(crystal.author, split) then
+									hits = hits + 1
+								else
+									if not v == s.lower(prev) and prev ~= nil then
+										misses = misses + 1
+									end
+								end
+							end
+							prev = v
 						end
-						return false, error('Verification failed: Author modified')
+
+						if hits > misses then 
+							return true, hits, misses
+						else
+							return false, hits, misses
+						end
 					end
 					crystal.verified = crystal.verify()
 
 					module = {
-							new = function(name,source)
-								local self = {}
-								self.name = name
-								self.source = source
-								self.execute = function(...)
-									source(...)
-								end
+
+							new = function(name, source)
+								local self = {
+									name=name,
+									source=source,
+									execute=function(...)
+										source(...)
+									end
+								}
 								return smt(self,module)
 							end
+
 						}
 
 					_C = {
+
 						[1] = crystal.packages,
 						[2] = settings,
 						[3] = mt,
+
 						dump = function()
 							local cleared = #_C
 							for i = 1,#_C do
@@ -710,6 +805,7 @@ return function(settings)
 								print('\nCleared '..cleared..' items from Crystal cache. Memory now: '..m.floor(collectgarbage('count')+crystal.memory/1.1)..' KB\n')
 							end
 						end
+
 					} --crystal cache
 
 				end
@@ -717,8 +813,10 @@ return function(settings)
     end
 
 		if settings.displayStats then
-			local s = ""
+
+			local s = ''
 			local count = 0
+
 			for i,v in pairs(packages) do
 				count = count + 1
 				local lastPkg = packages[#packages];
@@ -728,13 +826,23 @@ return function(settings)
 					s = s..v..', '
 				end
 			end
+
 			local mem = math.floor( collectgarbage('count') );
 			print(count..' packages imported from Crystal. \n[ '..s..' ]')
+
 			if crystal.findpkg('crystal+') then
-				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified)..'\n')
+				local v
+				local ver = crystal.verified
+				if ver then
+					v = 'yes'
+				else
+					v = 'no'
+				end
+				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..' by Runic | Verified: '..v..'\n')
 			else
 				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..'\n')
 			end
+
 		end
 
   end
