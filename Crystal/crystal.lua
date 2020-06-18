@@ -10,6 +10,7 @@ return coroutine.wrap(function(settings) --initiate
 		packages = { },
 		version = 'Crystal v.1.9.4 Alpha',
 		author = 'Riley "Runic" Peel',
+		settings = settings,
 		findpkg = function(pkg)
 			local found_pkg = false
 			for i,v in pairs(crystal.packages) do

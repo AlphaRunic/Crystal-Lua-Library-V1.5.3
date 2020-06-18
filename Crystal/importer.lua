@@ -2,9 +2,12 @@ local m,s,t,smt = math,string,table,setmetatable
 
 return function(settings)
 
-	settings = settings or {
+	local defsettings = {
 		displayStats = true,
 	};
+	
+	settings = settings or defsettings;
+	if settings == {} then settings = defsettings end;
 
   local packages = { };
 
