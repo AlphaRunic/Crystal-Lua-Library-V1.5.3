@@ -4,7 +4,7 @@ return function(settings)
 
 	settings = settings or {
 		displayStats = true,
-	}
+	};
 
   local packages = { };
 
@@ -25,7 +25,7 @@ return function(settings)
   import = function(...)
   
     local pkgList = { ... };
-    assert(pkgList~=nil and #pkgList >= 1 and type(pkgList) == 'table','Provided list is not a table or is empty.');    
+    assert(#pkgList >= 1, 'Provided package list is empty.');    
 
     for pkgNum, pkgName in pairs(pkgList) do
 
@@ -37,7 +37,7 @@ return function(settings)
 			end
 			
 			if not skip then
-				assert(pkgName~=nil and type(pkgName) == 'string' and accepted[pkgName] ~= nil, 'Package name "'..pkgName..'" is invalid. ');
+				assert(accepted[pkgName] ~= nil, 'Package name "'..pkgName..'" is invalid. ');
 
 				packages[pkgNum] = pkgName;
 
@@ -425,8 +425,8 @@ return function(settings)
 						new = function(seed)
 							local self = {}
 
-							if seed then
-								randomize()
+							if not seed then
+								seed = randomize()
 							end
 
 							self.next = function(n0,n1)
@@ -437,6 +437,7 @@ return function(settings)
 								local r = m.random(0, perc)
 								return r <= perc
 							end
+							self.seed = seed
 
 							return smt(self, Random)
 						end,
@@ -693,19 +694,23 @@ return function(settings)
 							end
 						}
 
-					_C = {} --crystal cache
-					t.insert(_C,#_C+1,crystal.packages);
-					t.insert(_C,#_C+1,getmetatable(crystal));
-					t.insert(_C,#_C+1,enviroment)
-					function _C.dump()
-						for i = 1,#_C do
-							if i == 'dump' then return end
-							t.remove(t,i)
+					_C = {
+						[1] = crystal.packages,
+						[2] = settings,
+						[3] = mt,
+						dump = function()
+							local cleared = #_C
+							for i = 1,#_C do
+								if not i == 'dump' then
+									--print('removed '..tostring(_C[i]))
+									t.remove(_C,i)
+								end
+							end
+							if settings.displayStats then
+								print('\nCleared '..cleared..' items from Crystal cache. Memory now: '..m.floor(collectgarbage('count')+crystal.memory/1.1)..' KB\n')
+							end
 						end
-						if settings.displayStats then
-							print('\nCleared '..tostring(#_C)..' items from Crystal cache. Memory now: '..tostring(m.floor(collectgarbage('count')+crystal.memory/1.1))..' KB\n')
-						end
-					end
+					} --crystal cache
 
 				end
 			end
@@ -723,14 +728,12 @@ return function(settings)
 					s = s..v..', '
 				end
 			end
-			local mem = math.floor( collectgarbage('count') )
+			local mem = math.floor( collectgarbage('count') );
 			print(count..' packages imported from Crystal. \n[ '..s..' ]')
-			if crystal.packages['crystal+'] then
-				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified))
-				print('\n')
+			if crystal.findpkg('crystal+') then
+				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..' by '..crystal.author..' | Verified: '..tostring(crystal.verified)..'\n')
 			else
-				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version)
-				print('\n')
+				print(m.floor(crystal.memory+mem)..' KB'..' '..crystal.version..'\n')
 			end
 		end
 
@@ -738,5 +741,5 @@ return function(settings)
 	
   crystal.packages = packages;
 
-  return packages;
+  return mt, crystal.packages;
 end

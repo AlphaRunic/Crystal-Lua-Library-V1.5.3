@@ -5,19 +5,19 @@
 							/ __)(  _ \( \/ )/ __)(_  _) /__\  (  )  
 						 ( (__  )   / \  / \__ \  )(  /(__)\  )(__ 
 							\___)(_)\_) (__) (___/ (__)(__)(__)(____)
-											 Version: 1.7.5 Alpha
+											 Version: 1.9.1 Alpha
 														 by Runic
 
 =======================================================================
 
 Note: This documentation only shows methods and objects of each package with no descriptions. Examples are in main.lua.
 
-- [	Setup
+- [		Setup
 
-	crystal = require('Crystal.crystal')({ --[[settings here...]] });
+	crystal = require('Crystal.crystal')({ --[[settings here, leave blank for default]] });
 	import('package', 'anotherpackage', 'someotherpackage')
 
-- [ Settings
+- [		Settings
 
 	displayStats | true, false | Displays packages, memory, and Version
 
@@ -78,15 +78,23 @@ Note: This documentation only shows methods and objects of each package with no 
 				percent
 
 	- [ 	Class
-			new
-			- [
-				edit
+			Name
+			__init__
+			Methods
 
 	- [		Color
 			fromRGB
+			- [
+				r
+				g
+				b
 			fromHex
+			- [
+				byte1
+				byte2
+				byte3
 
-	- [ 	Tokenizer !! String library will be imported if not installed. !!
+	- [ 	Tokenizer !! String library will be imported if not installed.
 			Tokens
 			add
 			remove
@@ -98,14 +106,27 @@ Note: This documentation only shows methods and objects of each package with no 
 			- [
 				new
 				- [
+					name
+					source
 					execute
 			crystal cache (_C)
 			- [
 				dump
 
+	- [		crystal
+			packages
+			version
+			findpkg
+
 	- [ 	crystal.rbx
 			setTime
 			explode
+			destroy
+			v2
+			v3
+			cf
+			ang
+			ud
 			VectorToUDim
 			Spring
 			- [

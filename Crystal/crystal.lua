@@ -7,7 +7,7 @@ return coroutine.wrap(function(settings) --initiate
 
   crystal = {
 		packages = { },
-		version = 'Crystal v.1.7 Alpha',
+		version = 'Crystal v.1.9.1 Alpha',
 		findpkg = function(pkg)
 			local found_pkg = false
 			for i,v in pairs(crystal.packages) do
@@ -17,7 +17,7 @@ return coroutine.wrap(function(settings) --initiate
 		end
 	}; --crystal.packages
 
-  local importerMem = require('Crystal.importer')(settings); --global import(...) function
+  local imported = require('Crystal.importer')(settings); --global import(...) function
 
 	warn = function(msg)
 		assert(type(msg) == 'string', 'Message is not a string.')
@@ -36,9 +36,9 @@ return coroutine.wrap(function(settings) --initiate
 
   sleep = function(n) --delays for n seconds and returns delta time 
     if not n then n = 0 end
-    local beforeWait = os.time()
+    local beforeWait = now()
     os.execute('sleep '..tonumber(n))
-    local dt = (os.time()-beforeWait)-n
+    local dt = (now()-beforeWait)-n
     return n, dt
   end
 
@@ -76,11 +76,12 @@ return coroutine.wrap(function(settings) --initiate
   end
 
 	local function getMemory()
-		local x = math.floor( collectgarbage('count') );
-		return x
+		return math.floor( collectgarbage('count') );
 	end
   crystal.memory = getMemory() --crystal memory
 	crystal.recheckMemory = getMemory
 
-  return setmetatable(crystal, crys_mt)
+	local mt = setmetatable(crystal, crys_mt)
+
+  return mt
 end)
