@@ -1,4 +1,3 @@
-# Crystal-Lua-Library-v.1.9.4
+# Crystal Lua Library v1.9.4 Alpha
 Huge library for all kinds of Lua projects with loads of helpful tools.
-
-Go to Wiki for docs
+by: Riley "Alpha Runic" Peel
