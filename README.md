@@ -1,4 +1,4 @@
-# Crystal Lua Library v1.0.0 Beta
+# Crystal.Lua v1.5.2 Beta Testing
 ## by: Riley "Alpha Runic" Peel
 
 ### Usage
