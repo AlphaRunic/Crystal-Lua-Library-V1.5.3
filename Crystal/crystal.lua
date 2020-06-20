@@ -1,6 +1,6 @@
 --#  1409 lines of code as of right now
 
-local CRYS_VERSION = '1.5.2';
+local CRYS_VERSION = '1.5.3';
 local CRYS_STAGE = 'Beta Testing';
 
 __ = {};
