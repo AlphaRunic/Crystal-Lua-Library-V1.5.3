@@ -1,4 +1,4 @@
-# Crystal.Lua v1.5.2 Beta Testing
+# Crystal.Lua v1.5.3 Beta Testing
 ## by: Riley "Alpha Runic" Peel
 
 ### Usage
