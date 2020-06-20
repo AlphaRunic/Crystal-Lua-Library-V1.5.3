@@ -11,7 +11,7 @@ local crys_env = getfenv();
 local m,t,s,smt = math,table,string,setmetatable;
 
 __._VERSION = 'Crystal.Lua v'..CRYS_VERSION..' '..CRYS_STAGE;
-__._GIT = 'https://github.com/AlphaRunic/Crystal.Lua-v1.0.0-Beta';
+__._GIT = 'https://github.com/AlphaRunic/Crystal.Lua';
 __._DESCRIPTION = 'A feature-rich modified version of Lua with a package manager.';
 
 return coroutine.wrap( function ( settings ) --initiate
