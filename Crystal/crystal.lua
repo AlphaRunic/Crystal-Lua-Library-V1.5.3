@@ -1,40 +1,65 @@
-print(_VERSION..'.5')
-local crys_mt = {};
-crys_mt.__index = crys_mt
+--#  1409 lines of code as of right now
 
-local m,t,s,smt = math,table,string,setmetatable
+local CRYS_VERSION = '1.5.2';
+local CRYS_STAGE = 'Beta Testing';
 
-return coroutine.wrap(function(settings) --initiate
+__ = {};
 
-  crystal = {
+local crys_mt = {__index = __};
+local crys_env = getfenv();
+
+local m,t,s,smt = math,table,string,setmetatable;
+
+__._VERSION = 'Crystal.Lua v'..CRYS_VERSION..' '..CRYS_STAGE;
+__._GIT = 'https://github.com/AlphaRunic/Crystal.Lua-v1.0.0-Beta';
+__._DESCRIPTION = 'A feature-rich modified version of Lua with a package manager.';
+
+return coroutine.wrap( function ( settings ) --initiate
+
+  _G['crystal'] = {
 		packages = { },
-		version = 'Crystal v.1.9.4 Alpha',
+		version = __._VERSION,
 		author = 'Riley "Runic" Peel',
+		git = __._GIT,
 		settings = settings,
 		findpkg = function(pkg)
 			local found_pkg = false
-			for i,v in pairs(crystal.packages) do
+			for i,v in pairs ( crystal.packages ) do 
 				if i == pkg or v == pkg then found_pkg = true break end
-			end
-			return found_pkg
-		end
-	}; --crystal.packages
+			end return found_pkg
+		end;
+	};
 
-  local imported = require('Crystal.importer')(settings); --global import(...) function
+  local imported = require('Crystal.importer') ( settings ); --global import(...) function with all library data
+
+	function rand(x,r)
+		return m.random(x,r)
+	end
 
 	warn = function(msg)
-		assert(type(msg) == 'string', 'Message is not a string.')
-		print('[Crystal Warning]  ::  '..msg)
+		if settings.warnings then
+			assert(type(msg) == 'string', 'Message is not a string.')
+			print('[Crystal Warning]  ::  '..msg)
+		else
+			error('Warnings are disabled.')
+		end
 	end
 
 	now = os.time
 
   getseed = function() --used for math.randomseed and Random.new
-    return now() * 2
+    return now() ^ 2
   end
 
+	vardump = function(v)
+		return {
+			type=type(v),
+			value=v
+		}
+	end
+
   randomize = function()
-    return math.randomseed(getseed())
+    return m.randomseed(getseed())
   end
 
   sleep = function(n) --delays for n seconds and returns delta time 
@@ -50,7 +75,7 @@ return coroutine.wrap(function(settings) --initiate
 		return condition
   end
 
-  scope = function(fn,dlt) --pcalls fn with delay time dlt (or 0) within a new scope
+  scope = function(fn,dlt) --wraps fn with coroutine with a delay time dlt (or 0) within a new scope
     if not dlt then dlt = 0 end
     local s do
       sleep(dlt)
@@ -78,13 +103,37 @@ return coroutine.wrap(function(settings) --initiate
 		return 
   end
 
-	local function getMemory()
-		return math.floor( collectgarbage('count') );
+	pcall = function(fn)
+		return pcall(fn), debug.traceback()
 	end
-  crystal.memory = getMemory() --crystal memory
-	crystal.recheckMemory = getMemory
 
-	local mt = setmetatable(crystal, crys_mt)
+	gencode = function(len, characters)
+		randomize()
+		characters = characters or 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
+		len = len or 6
+		if not crystal.findpkg('string') then import('string') end
+		local allchars = string.separate(characters)
+		local result = ''
+		for i = 1,len do
+			result = result..allchars[m.random(1,#allchars)]
+		end
+		randomize()
+		return result
+	end
 
-  return mt
+	new = function ( instance )
+		assert(
+			type(instance) == 'table',
+			'cannot create new object with type \"'..type(instance)..'\".'
+		);
+		return instance.new;
+	end
+
+	memory = function()
+		return m.floor( collectgarbage('count') + .5 * 102.4 );
+	end
+  crystal.memory = memory() --crystal memory
+	crystal.recheckMemory = memory
+
+  return smt(crystal, crys_mt)
 end), crys_mt
