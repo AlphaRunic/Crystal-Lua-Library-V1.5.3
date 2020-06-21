@@ -1,20 +1,19 @@
-# Crystal.Lua v1.5.3 Beta Testing
+# Crystal.Lua v1.7.2 Beta Testing
 ## by: Riley "Alpha Runic" Peel
 
 ### Usage
 
 - Requiring module |
-`local crystal = require('Crystal.crystal')(
-	{
+`crystal = require 'Crystal.crystal' {
 		displayStats = true,
 		warnings = true
-	}
-)`
+	}`
 
 - Importing packages |
 `import ('package1', 'package2')` OR `import 'package'`
 
 ### Vanilla Crystal
+
   - `object crystal` | where crystal data is stored
     - `tab packages` | where packages are stored
     - `string version` | crystal version
@@ -22,6 +21,10 @@
     - `string git` | github repo
     - `tab settings` | settings inputted while requiring
     - `findpkg { string: pkg_name }` | returns true if pkg_name is installed
+  - `class { string: name } { tab: instance }` | creates a new class named name, when a new class is created it returns an instance with properties of instance table inputted
+  - `raise { string: err }` | raises an error
+  - `reversed { tab: t }` | returns iterator that iterates over t reversed
+  - `range { int: x }` | returns number tuple of one to x
   - `rand { num: x, num: y }` | returns random number between x and y
   - `warn { string: warning }` | outputs a crystal warning with message warning
   - `now { @none }` | returns os.time() (the UNIX epoch)
@@ -114,11 +117,6 @@
     - `next { num: x, num: y }` | returns a random number between x and y with seed of random obj
     - `percent { num: percentage }` | returns true if random number between one and one hundred is less than or equal to percentage with seed of random obj
     - `int seed` | seed of random obj
-- lua-py (global)
-  - `Class { string: name, tab: objects }` | creates a new class named name with objects objects
-  - `raise { string: err }` | raises an error
-  - `reversed { tab: t }` | returns iterator that iterates over t reversed
-  - `range { int: x }` | returns number tuple of one to x
 - Color
   - `fromRGB { int: r, int: g, int: b }` | returns color object
     - `int r` | red
