@@ -1,18 +1,45 @@
-# Crystal.Lua v1.5.2 Beta Testing
+# Crystal.Lua v1.7.2 Beta Testing
 ## by: Riley "Alpha Runic" Peel
 
 ### Usage
 
 - Requiring module |
-`local crystal = require('Crystal.crystal')(
-	{
+`crystal = require('Crystal.crystal') {
 		displayStats = true,
 		warnings = true
-	}
-)`
+	}`
 
 - Importing packages |
 `import ('package1', 'package2')` OR `import 'package'`
+
+### Vanilla Crystal
+
+  - `object crystal` | where crystal data is stored
+    - `tab packages` | where packages are stored
+    - `string version` | crystal version
+    - `string author` | crystal author
+    - `string git` | github repo
+    - `tab settings` | settings inputted while requiring
+    - `findpkg { string: pkg_name }` | returns true if pkg_name is installed
+  - `class { string: name } { tab: instance }` | creates a new class named name, when a new class is created it returns an instance with properties of instance table inputted
+  - `raise { string: err }` | raises an error
+  - `reversed { tab: t }` | returns iterator that iterates over t reversed
+  - `range { int: x }` | returns number tuple of one to x
+  - `rand { num: x, num: y }` | returns random number between x and y
+  - `warn { string: warning }` | outputs a crystal warning with message warning
+  - `now { @none }` | returns os.time() (the UNIX epoch)
+  - `getseed { @none }` | returns a random seed
+  - `vardump { any: variable }` | dumps a variables type and value into an object
+  - `randomize { @none }` | uses randomseed with getseed()
+  - `sleep { num: n }` | yields for n seconds
+  - `yield { condition: cond }` | yields until cond is met
+  - `scope { void: function }` | wraps function in a local scope
+  - `sequence { void: function, int: iterations, num: wait_time }` | calls function iterations times with wait_time seconds in between, set iterations to inf or 0 for inf loop
+  - `pcall { void: function }` | (modified) calls function in protected mode, returns normal pcall vals and debug traceback
+  - `gencode { int: length, string: characters }` | generates a pseudo-random string length characters long and using characters of characters
+  - `new { object: instance }` | creates a new instance of object
+  - `memory { @none }` | returns crystal memory in kb
+  - `int crystal.memory` | memory in use by crystal importer and all libraries installed 
 
 ### Packages
 
@@ -90,11 +117,6 @@
     - `next { num: x, num: y }` | returns a random number between x and y with seed of random obj
     - `percent { num: percentage }` | returns true if random number between one and one hundred is less than or equal to percentage with seed of random obj
     - `int seed` | seed of random obj
-- lua-py (global)
-  - `Class { string: name, tab: objects }` | creates a new class named name with objects objects
-  - `raise { string: err }` | raises an error
-  - `reversed { tab: t }` | returns iterator that iterates over t reversed
-  - `range { int: x }` | returns number tuple of one to x
 - Color
   - `fromRGB { int: r, int: g, int: b }` | returns color object
     - `int r` | red
@@ -132,27 +154,3 @@
   - `bool crystal.verified` | true if verified, false if not
   - `object _C` | crystal cache
     - `dump { @none }` | destroys all data in cache
-    
-### Vanilla Crystal
-  - `object crystal` | where crystal data is stored
-    - `tab packages` | where packages are stored
-    - `string version` | crystal version
-    - `string author` | crystal author
-    - `string git` | github repo
-    - `tab settings` | settings inputted while requiring
-    - `findpkg { string: pkg_name }` | returns true if pkg_name is installed
-  - `rand { num: x, num: y }` | returns random number between x and y
-  - `warn { string: warning }` | outputs a crystal warning with message warning
-  - `now { @none }` | returns os.time() (the UNIX epoch)
-  - `getseed { @none }` | returns a random seed
-  - `vardump { any: variable }` | dumps a variables type and value into an object
-  - `randomize { @none }` | uses randomseed with getseed()
-  - `sleep { num: n }` | yields for n seconds
-  - `yield { condition: cond }` | yields until cond is met
-  - `scope { void: function }` | wraps function in a local scope
-  - `sequence { void: function, int: iterations, num: wait_time }` | calls function iterations times with wait_time seconds in between, set iterations to inf or 0 for inf loop
-  - `pcall { void: function }` | (modified) calls function in protected mode, returns normal pcall vals and debug traceback
-  - `gencode { int: length, string: characters }` | generates a pseudo-random string length characters long and using characters of characters
-  - `new { object: instance }` | creates a new instance of object
-  - `memory { @none }` | returns crystal memory in kb
-  - `int crystal.memory` | memory in use by crystal importer and all libraries installed 
