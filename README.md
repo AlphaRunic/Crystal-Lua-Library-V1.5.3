@@ -4,7 +4,7 @@
 ### Usage
 
 - Requiring module |
-`crystal = require('Crystal.crystal') {
+`crystal = require 'Crystal.crystal' {
 		displayStats = true,
 		warnings = true
 	}`
