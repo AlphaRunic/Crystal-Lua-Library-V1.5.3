@@ -1,16 +1,13 @@
-local crystal = require('Crystal.crystal')(
-	{
-		displayStats = true,
-		warnings = true
-	}
-) --import library
-
+crystal = require 'Crystal.crystal' {
+	displayStats = true,
+	warnings = true				
+} --import library
+--[[
 import ( --import using tuple or individually (i.e. import'string')
 	"string",
 	"math",
 	"table",
 	"random",
-	"lua-py",
 	"color",
 	"tokenizer",
 	"event",
@@ -18,11 +15,15 @@ import ( --import using tuple or individually (i.e. import'string')
 	"crys-sys",
 	"crystal+"
 ) -->> crystal.packages, to find: crystal.findpkg(pkg)
+--]]
 
---[[
---Sys.cmd_console() --reads any input as a crystal system command until command "exit" is executed
+import 'crys-sys'
+
+--Sys.execute('exe foo.lua bar') -->> prints any args given, in this case "bar"
+Sys.cmd_console() --reads any input as a crystal system command until command "exit" is executed
 --Sys.read_input() --reads one line of input as a command
 --Sys.execute('cls','clean','echo hello world') --clears console, then collects lua script garbage, then echoes
+--[[
 Sys.clean() --cleans garbage
 
 local my_variable = 'hey there!'

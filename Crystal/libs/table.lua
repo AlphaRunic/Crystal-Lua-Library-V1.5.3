@@ -260,6 +260,21 @@ table ={
 								_shuffled[randPos] = value
 							end)
 							return _shuffled
+						end,
+						tostring = function( tbl )
+							-- to convert table into string
+							local result, done = {}, {}
+							for k, v in ipairs( tbl ) do
+								table.insert( result, table.val_to_str( v ) )
+								done[ k ] = true
+							end
+							for k, v in pairs( tbl ) do
+								if not done[ k ] then
+									table.insert( result,
+									table.key_to_str( k ) .. "=" .. table.val_to_str( v ) )
+								end
+							end
+							return "{" .. table.concat( result, "," ) .. "}"
 						end
 
 					}

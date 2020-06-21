@@ -14,6 +14,13 @@ __._VERSION = 'Crystal.Lua v'..CRYS_VERSION..' '..CRYS_STAGE;
 __._GIT = 'https://github.com/AlphaRunic/Crystal.Lua';
 __._DESCRIPTION = 'A feature-rich modified version of Lua with a package manager.';
 
+local title_colors = '93m' --yellow
+local effect = '1' --bold
+os.execute('echo \"\\e\['..effect..';'..title_colors..'\"') --change color
+print(_VERSION..'.5') --lua 5.1.5
+print(__._VERSION..' by Runic')
+print(__._GIT, '\n')
+
 return coroutine.wrap( function ( settings ) --initiate
 
   _G['crystal'] = {
@@ -107,33 +114,61 @@ return coroutine.wrap( function ( settings ) --initiate
 		return pcall(fn), debug.traceback()
 	end
 
-	gencode = function(len, characters)
-		randomize()
-		characters = characters or 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
-		len = len or 6
-		if not crystal.findpkg('string') then import('string') end
-		local allchars = string.separate(characters)
-		local result = ''
-		for i = 1,len do
-			result = result..allchars[m.random(1,#allchars)]
-		end
-		randomize()
-		return result
-	end
+	class = function ( name )
+		return coroutine.wrap ( function ( self )
+			local __mt__ = {};
+			_G[name] = { new = coroutine.wrap ( function ()
+				local __init__;
+				for name, def in pairs ( self ) do
+					if name ~= '__init__' then
+						__mt__[name] = function ( ... ) def ( self, ... ) end;
+					else
+						__init__ = def;
+					end
+				end
+				if __init__ then __init__ ( self ) end;
+				return __mt__, setmetatable ( self, __mt__ );
+			end) };
+		end);
+	end;
 
-	new = function ( instance )
+	new = function ( class )
 		assert(
-			type(instance) == 'table',
-			'cannot create new object with type \"'..type(instance)..'\".'
+			type(class) == 'table',
+			'cannot create new instance with type \"'..type(object)..'\".'
 		);
-		return instance.new;
-	end
+		return class.new;
+	end;
+
+	raise = error;
+
+	reversed = function(t)
+		local function rev(tab)
+			local reversed = {}
+			local count = 1
+			for i = -#tab, 0 do
+				reversed[count] = tab[-i]
+				count = count + 1
+			end
+			return reversed
+		end
+		return pairs(rev(t))
+	end;
+
+	range = function(n)
+		local res = {}
+		for i = 1,n do 
+			res[i] = i
+		end
+		return unpack(res)
+	end;
 
 	memory = function()
 		return m.floor( collectgarbage('count') + .5 * 102.4 );
-	end
-  crystal.memory = memory() --crystal memory
-	crystal.recheckMemory = memory
+	end;
 
-  return smt(crystal, crys_mt)
-end), crys_mt
+  crystal.memory = memory(); --crystal memory
+	crystal.recheckMemory = memory;
+
+  return smt(crystal, crys_mt);
+end), crys_mt;

@@ -166,6 +166,18 @@ return {
 							end
 							if truncated == '' then truncated = str end
 							return truncated
+						end,
+						gencode = function(len, characters)
+							randomize()
+							characters = characters or 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
+							len = len or 6
+							local allchars = string.separate(characters)
+							local result = ''
+							for i = 1,len do
+								result = result..allchars[m.random(1,#allchars)]
+							end
+							randomize()
+							return result
 						end
 
 					}

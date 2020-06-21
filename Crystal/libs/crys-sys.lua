@@ -1,10 +1,9 @@
 local m,s,t,smt = math,string,table,setmetatable;
-if not crystal.findpkg('string') then import('string') end;
-
 local _cmd_ = require('Crystal.libs.cmds');
 
 --# Sys.execute command handler;
 local function read_line(text)
+	if not crystal.findpkg 'string' then import 'string' end;
 	local cmd_n_params = string.split(text, ' ')
 
 	local cmd = cmd_n_params[1]
@@ -24,6 +23,7 @@ Sys = {
 		end
 	end,
 	read_input = function()
+		if not crystal.findpkg 'string' then import 'string' end;
 		local inp = s.lower(io.read())
 		local sep = string.separate(inp)
 		local function ignore_blank()
@@ -36,6 +36,7 @@ Sys = {
 	end,
 	cmd_console = function()
 		local function get_cmds()
+			if not crystal.findpkg 'string' then import 'string' end;
 			local inp = s.lower(io.read())
 			local sep = string.separate(inp)
 			local function ignore_blank()

@@ -20,7 +20,6 @@ return coroutine.wrap( function ( settings )
     random = 'random',
     color = 'color',
     tokenizer = 'tokenizer',
-		['lua-py'] = 'lua-py',
 		event = 'event',
 		form = 'form',
 		['crys-sys'] = 'crys-sys',
@@ -42,20 +41,21 @@ return coroutine.wrap( function ( settings )
 		['crystal+'] = 'crystal+'
 	}
 
+
   import = function(...)
   
-    local pkgList = { ... };
-    assert(#pkgList >= 1, 'Provided package list is empty.');    local LibsFromModules = 0
-			local OtherLibs = 0
+    local pkgList = { ... }
+    assert(#pkgList >= 1, 'Provided package list is empty.');    local LibsFromModules = 0;
+			local OtherLibs = 0;
 
     for pkgNum, pkgName in pairs ( pkgList ) do
 
-			local skip
-			pkgName = s.lower (pkgName)
+			local skip;
+			pkgName = s.lower (pkgName);
 			if crystal.findpkg (pkgName) then
-				warn('Package "'..pkgName..'" is already installed.')
-				pkgList[pkgNum] = nil
-				skip = true
+				warn('Package "'..pkgName..'" is already installed.');
+				pkgList[pkgNum] = nil;
+				skip = true;
 			end
 			
 			if not skip then
@@ -67,8 +67,7 @@ return coroutine.wrap( function ( settings )
 				packages[pkgNum] = pkgName;
 
 				local ModuleExceptions = {
-					['crystal.rbx'] = true,
-					['lua-py'] = true
+					['crystal.rbx'] = true
 				}
 
 				if ModuleExceptions[pkgName] ~= nil then
@@ -216,20 +215,6 @@ return coroutine.wrap( function ( settings )
 							end
 						}
 
-						setTime = function(time)
-							if not crystal.findpkg('string') then import'string' end
-
-							local clockDigits = {1,2,3,4,5,6,7,8,9,10,11,12}
-							
-							if not time then time = 'nil' end
-							local times = string.split(tostring(time), ':')
-							if times[1] == nil then times[1] = '12' end
-							if times[2] == nil then times[2] = '00' end
-							if times[3] == nil then times[3] = '00' end
-
-							light.TimeOfDay = times[1]..':'..times[2]..':'..time[3]
-						end
-
 						v3 = Vector3.new
 						cf = CFrame.new
 						ang = CFrame.Angles
@@ -251,66 +236,6 @@ return coroutine.wrap( function ( settings )
 							yield(explosion == nil)
 							destroy(p1)
 
-						end
-					elseif pkgName == 'lua-py' then
-						Class = {
-							new = function(...)
-								local args = { ... };
-								local name, __init__;
-								local methods = {};
-
-								for i,v in pairs(args) do
-									if i == 1 then
-										name = v
-									elseif i == 2 then
-										__init__ = v 
-									else
-										t.insert(methods,#methods+1,v)
-									end
-								end
-
-								local self = {
-									Name = name,
-									Methods = methods,
-									__init__ = __init__ or function() end
-								};
-
-								assert(name ~= nil and type(name) == 'string' or type(name) == 'number' and methods ~= nil and type(methods) == 'table','Invalid methods or name');
-								local function setChildren()
-									for i,v in pairs(self.Methods) do
-										for i,v in pairs(v) do
-											self[i] = v;
-										end
-									end
-								end
-								setChildren();
-
-								return function()
-									self.__init__();
-									return self;
-								end;
-							end;
-						};
-
-						raise = error;
-						reversed = function(t)
-							local function rev(tab)
-								local reversed = {}
-								local count = 1
-								for i = -#tab, 0 do
-									reversed[count] = tab[-i]
-									count = count + 1
-								end
-								return reversed
-							end
-							return pairs(rev(t))
-						end;
-						range = function(n)
-							local res = {}
-							for i = 1,n do 
-								res[i] = i
-							end
-							return unpack(res)
 						end
 					end;
 				else
@@ -339,7 +264,7 @@ return coroutine.wrap( function ( settings )
 			end
 
 			local mem = math.floor( collectgarbage('count') );
-			local imported = count..' packages imported from Crystal. '..LibsFromModules..' from libs, '..OtherLibs..' from internal. \n[ '..s..' ]'
+			local imported = count..' packages imported. \n[ '..s..' ]'
 
 			if crystal.findpkg('crystal+') then
 				local v
@@ -349,20 +274,10 @@ return coroutine.wrap( function ( settings )
 				else
 					v = 'no'
 				end
-				local title_colors = '93m' --yellow
-				local effect = '1' --bold
-				os.execute('echo \"\\e\['..effect..';'..title_colors..'\"') --change color
-				print(_VERSION..'.5') --lua 5.1.5
-				print(crystal.version..' by Runic')
-				print(crystal.git, '\n')
 				print(imported) --packages
 				print('[Crystal Memory] '..m.floor(crystal.memory+memory())..' KB','\n')
 				--colorprint(title_colors, true, 'Global Crystal features (imported): '..crystal.global_objs(),'\n') *removed global colorprint
 			else
-				print(_VERSION..'.5')
-				print(crystal.version)
-				print(crystal.git)
-				print('\n')
 				print(imported)
 				print('Crystal Memory: '..m.floor(crystal.memory+memory())..' KB')
 			end
