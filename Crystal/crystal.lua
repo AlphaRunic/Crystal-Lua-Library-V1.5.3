@@ -1,4 +1,4 @@
---#  1409 lines of code as of right now
+--#  1457 lines of code as of right now
 
 local CRYS_VERSION = '1.5.3';
 local CRYS_STAGE = 'Beta Testing';
@@ -21,7 +21,7 @@ print(_VERSION..'.5') --lua 5.1.5
 print(__._VERSION..' by Runic')
 print(__._GIT, '\n')
 
-return coroutine.wrap( function ( settings ) --initiate
+return coroutine.wrap ( function ( settings ) --initiate
 
   _G['crystal'] = {
 		packages = { },
@@ -48,7 +48,7 @@ return coroutine.wrap( function ( settings ) --initiate
 			assert(type(msg) == 'string', 'Message is not a string.')
 			print('[Crystal Warning]  ::  '..msg)
 		else
-			error('Warnings are disabled.')
+			print(pcall(function() error('Warnings are disabled.') end))
 		end
 	end
 
@@ -110,7 +110,7 @@ return coroutine.wrap( function ( settings ) --initiate
 		return 
   end
 
-	pcall = function(fn)
+	db_pcall = function(fn)
 		return pcall(fn), debug.traceback()
 	end
 
@@ -133,11 +133,12 @@ return coroutine.wrap( function ( settings ) --initiate
 	end;
 
 	new = function ( class )
+		class = class[1]
 		assert(
 			type(class) == 'table',
 			'cannot create new instance with type \"'..type(object)..'\".'
 		);
-		return class.new;
+		return function(args) return class.new(unpack(args)) end;
 	end;
 
 	raise = error;

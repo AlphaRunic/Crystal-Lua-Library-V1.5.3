@@ -2,8 +2,9 @@ crystal = require 'Crystal.crystal' {
 	displayStats = true,
 	warnings = true				
 } --import library
---[[
-import ( --import using tuple or individually (i.e. import'string')
+
+--import using tuple or individually (i.e. import 'string')
+import ( 
 	"string",
 	"math",
 	"table",
@@ -15,26 +16,27 @@ import ( --import using tuple or individually (i.e. import'string')
 	"crys-sys",
 	"crystal+"
 ) -->> crystal.packages, to find: crystal.findpkg(pkg)
---]]
 
-import 'crys-sys'
+--import 'crys-sys'
+
+
 
 --Sys.execute('exe foo.lua bar') -->> prints any args given, in this case "bar"
 Sys.cmd_console() --reads any input as a crystal system command until command "exit" is executed
 --Sys.read_input() --reads one line of input as a command
 --Sys.execute('cls','clean','echo hello world') --clears console, then collects lua script garbage, then echoes
---[[
+
 Sys.clean() --cleans garbage
 
 local my_variable = 'hey there!'
 local obj_var = vardump(my_variable) --turns my_var into a table with a type and a value
 print(obj_var.type, obj_var.value) -->>	string hey there!
 
-print(gencode(6, '1234567890')) --any random 6 character sequence of numbers
-print(gencode(10)) --any random 10 character sequence of lowercase & uppercase letters and numbers
-print(gencode(6, '!@#$%^&*()-_=+`~{}|[]\:";\\\'<>?,.')) -- any random 6 character sequence of symbols
+print(string.gencode(6, '1234567890')) --any random 6 character sequence of numbers
+print(string.gencode(10)) --any random 10 character sequence of lowercase & uppercase letters and numbers
+print(string.gencode(6, '!@#$%^&*()-_=+`~\{\}|\[\]:";\\\'<>?,.')) -- any random 6 character sequence of symbols
 
-test = new (Form) ( --create a new form
+test = new { Form } { --create a new form
 	{ --questions
 		'What\'s your name?', --q1
 		'What\'s your age?', --q2
@@ -45,7 +47,7 @@ test = new (Form) ( --create a new form
 		'15', --a2
 		'Bentley' --a3
 	}
-)
+};
 
 test:Start() --start listening for answers in console
 
@@ -59,7 +61,7 @@ for ans_num, ans in pairs(test.Answers) do
 end --evaluate each question
 
 local rn = now()
-local TimeChangeEvent = new (Event) ('TimeChange') --create a new bindable event
+local TimeChangeEvent = new { Event } { 'TimeChange' } --create a new bindable event
 
 local connection --script connection returned by event:connect
 local _break
@@ -106,8 +108,8 @@ local get_bytes = 'hello'
 table.display(string.bytes(get_bytes)) --each index of table of each byte of each character in "get_bytes"
 
 randomize() --randomizes the environment (random seed)
-local rand = new (Random) () -->> returns a new random object "rand" with random seed
-local randWithSeed = new (Random) (5) -->> returns a new random object "randWithSeed" with seed of 5
+local rand = new { Random } {}; -->> returns a new random object "rand" with random seed
+local randWithSeed = new { Random } { 5 }; -->> returns a new random object "randWithSeed" with seed of 5
 print(randWithSeed.seed) -->> 5
 print(rand.seed) -->>  pseudo random large number seed
 local mynum = rand.next(1,10) -->> returns random # between 1 and 10 in with seed of random object "rand"
@@ -135,20 +137,20 @@ table.display(table.numbers(zipped)) --returns an array with all numbers in zipp
 table.display(table.reverse(zipped)) --wow, 7, 3.14, part 2!, 2, hey there
 
 --python-like classes
-local MyClass = new (Class) ('Animal', --this part is identical to from module import class, this would work almost exactly like python in modules.
-	function() --init function (identical to def __init__():)
-		print('Animal class has been initiated')
+class 'Animal_Class' {
+	__init__ = function (self)
+		self.planet = 'earth'
+		print ('planet is set')
 	end,
-	{Dog = function() --this is indentical to def Dog():
-		print('I am a dog')
-	end},
-	{Giraffe = function()
-		print('I am a giraffe')
-	end}
-)
-local Animal = MyClass() --load class to variable "Animal" >> animal class initiated
-Animal.Dog() -->> I am a dog
-Animal.Giraffe() -->> I am a giraffe
+	dog = function (self)
+		print ('i am a dog. i live on '..self.planet)
+	end
+} --global variable Animal_Class will load class
+
+Animal = new { Animal_Class } {}; -->> planet is set
+Animal.dog () -->> i am a dog. i live on earth
+
+--range() from python
 joe, bob, jordan = range(3)
 print(joe, bob, jordan) -->> 1 2 3
 

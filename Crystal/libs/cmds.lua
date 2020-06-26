@@ -1,4 +1,4 @@
---# lots of these command only have linux support at the moment
+--# lots of these command only have linux/shell support at the moment
 
 local m,s,t,smt = math,string,table,setmetatable;
 local echo_color = ''
@@ -11,29 +11,30 @@ local valid_cmds = {
 				str_to_print = str_to_print..arg..' '
 			end
 		end
-		os.execute('echo '..echo_color..str_to_print..end_quote); --turns table args into tuple so it will print all vals in args, linux/shell only
+		os.execute ('echo '..echo_color..str_to_print..end_quote); --turns table args into tuple so it will print all vals in args, linux/shell only
 	end,
 	clean = function(args)
 		local mem_before = memory();
-		collectgarbage(); --collect
+		collectgarbage (); --collect
 		local mem_now = memory();
 		local garbage_collected = mem_before - mem_now
 		print('Collected '..m.floor(garbage_collected)..' KB of garbage.');
 	end,
 	cls = function(args)
-		os.execute('clear '); --linx/shell only
+		os.execute ('clear '); --linx/shell only
 	end,
 	exe = function(args)
 		local file = args[1];
 		t.remove(args, 1);
-		loadfile(file)(unpack(args));
+		loadfile ( file ) ( unpack (args) );
+		print(a,b);
 	end,
 	['lua-ex'] = function(args)
 		local str_to_load = '';
-		for _, arg in pairs(args) do
+		for _, arg in pairs (args) do
 			str_to_load = str_to_load..arg..' ';
 		end
-		loadstring(str_to_load)();
+		loadstring (str_to_load) ();
 	end,
 	exit = function(args)
 		Sys.exit = true;
@@ -43,20 +44,20 @@ local valid_cmds = {
 		end_quote = '\"';
 	end,
 	ip = function(args) --linux/shell only
-		os.execute 'ip a show' 
+		os.execute 'ip a show';
 	end,
 	cd = function(args)
-		local dir = args[1]
-		os.execute('cd '..dir) --finally! any os.
+		local dir = args[1];
+		os.execute ('cd '..dir) --finally! any os.
 	end,
 
 	crystal = function(args)
-		local process = args[1]
-		t.remove(args, 1)
+		local process = args[1];
+		t.remove (args, 1);
 
 		--package manager; crystal install string -->> 1 package installed
-		if process == 'install' or process = 'import' or process == 'i' then
-			local pkgs = unpack(args)
+		if process == 'install' or process == 'import' or process == 'i' then
+			local pkgs = unpack (args)
 			import (pkgs)
 		end
 	end,
@@ -77,9 +78,9 @@ local valid_cmds = {
 local function read_cmd(command, args)
 	local success
 	if valid_cmds[command] == nil then success = false else success = true end
-	if success then valid_cmds[command] (args) else
-		if crystal.settings.warnings then warn('Invalid command! got: '..command) else
-			print('Invalid command! got: '..command)
+	if success then success, err = pcall ( function () valid_cmds[command] (args) end) if not success then print (err) end else
+		if crystal.settings.warnings then warn ('Invalid command! got: '..command) else
+			print ('Invalid command! got: '..command)
 		end
 	end
 end
